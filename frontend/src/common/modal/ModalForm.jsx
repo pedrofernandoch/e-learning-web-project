@@ -80,17 +80,17 @@ class ModalForm extends Component {
             axios[method](`${baseApiUrl}/${model}s/${id}`, body)
                 .then(async _ => {
                     await this.setState({ showBackDrop: false })
-                    toastr.success('Sucesso', 'Operação Realizada com sucesso.')
+                    toastr.success('Success', 'Operation carried out successfully.')
                     setToInitalState()
                 })
                 .catch(async e => {
                     await this.setState({ showBackDrop: false })
                     if (e && e.response && e.response.data) {
-                        toastr.error('Erro', e.response.data)
+                        toastr.error('Error', e.response.data)
                     } else if (typeof e === 'string') {
-                        toastr.error('Erro', e)
+                        toastr.error('Error', e)
                     } else {
-                        toastr.error('Erro', 'Oops.. Erro inesperado.')
+                        toastr.error('Error', 'Oops.. Something went wrong.')
                     }
                 })
         } else {
@@ -109,10 +109,10 @@ class ModalForm extends Component {
                             <Grid container spacing={0} className={classes.submit} direction='row'>
                                 <Grid item xs={7} />
                                 <Grid item xs={3}>
-                                    <Button style={{ color: '#363638' }} onClick={e => this.props.setToInitalState()}>Cancelar</Button>
+                                    <Button style={{ color: '#363638' }} onClick={e => this.props.setToInitalState()}>Cancel</Button>
                                 </Grid>
                                 <Grid item xs={2}>
-                                    <Button type="submit" style={{ backgroundColor: '#ca0096', color: '#ffffff' }}>Salvar</Button>
+                                    <Button type="submit" style={{ backgroundColor: '#ca0096', color: '#ffffff' }}>Save</Button>
                                 </Grid>
                             </Grid>
                         </form>

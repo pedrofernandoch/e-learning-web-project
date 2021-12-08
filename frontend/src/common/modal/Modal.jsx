@@ -53,15 +53,15 @@ class Modal extends Component {
     remove(id, model) {
         axios.delete(`${baseApiUrl}/${model}s/${id}`)
             .then(resp => {
-                toastr.success('Sucesso', 'Operação Realizada com sucesso.')
+                toastr.success('Success', 'Operation carried out successfully.')
             })
             .catch(e => {
                 if (e && e.response && e.response.data) {
-                    toastr.error('Erro', e.response.data)
+                    toastr.error('Error', e.response.data)
                 } else if (typeof e === 'string') {
-                    toastr.error('Erro', e)
+                    toastr.error('Error', e)
                 } else {
-                    toastr.error('Erro', 'Oops.. Erro inesperado.')
+                    toastr.error('Error', 'Oops.. Something went wrong.')
                 }
             })
     }

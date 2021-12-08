@@ -37,11 +37,11 @@ class TableView extends Component {
             })
             .catch(e => {
                 if (e && e.response && e.response.data) {
-                    toastr.error('Erro', e.response.data)
+                    toastr.error('Error', e.response.data)
                 } else if (typeof e === 'string') {
-                    toastr.error('Erro', e)
+                    toastr.error('Error', e)
                 } else {
-                    toastr.error('Erro', 'Oops.. Erro inesperado.')
+                    toastr.error('Error', 'Oops.. Something went wrong.')
                 }
                 this.setState({ data: [] })
             })
