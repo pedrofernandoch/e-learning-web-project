@@ -4,58 +4,52 @@ import ContentHeader from '../common/components/ContentHeader'
 import axios from 'axios'
 import MaterialTable from "@material-table/core"
 import { toastr } from 'react-redux-toastr'
-import { tableIcons, addIcon, editIcon, deleteIcon, refreshIcon, beautifyData, exportData, getUrl, my_localization, options } from '../utils/materialTable'
+import { baseApiUrl } from '../utils/systemConstans'
+import { tableIcons, addIcon, editIcon, deleteIcon, refreshIcon, beautifyData, my_localization, options, fileName } from '../utils/materialTable'
+import { ExportCsv } from '@material-table/exporters';
 
 class TableView extends Component {
 
-    tableRef = React.createRef()
+    constructor(props) {
+        super(props)
+        this.state = { data: [] }
+    }
 
-    // componentDidMount() {
-    //     this.props.getData()
-    // }
-
-    getTableData = query =>
-        new Promise((resolve, reject) => {
-            axios.get(getUrl(query, false, this.props.model + 's'))
-                .then(result => {
-                    let tableData = []
-                    if (result.data && Array.isArray(result.data)) {
-                        if (this.props.model === 'contact' || 'feedback') {
-                            tableData = result.data.map(entity => {
-                                const user = { ...entity.user }
-                                user.userId = user.id
-                                delete user.id
-                                delete entity.user
-                                return { ...entity, ...user }
-                            })
-                        } else {
-                            tableData = result.data
-                        }
-                    }
-                    beautifyData(tableData)
-                    resolve({
-                        data: tableData,
-                        page: result.data.page ? result.data.page - 1 : 0,
-                        totalCount: result.data.count ? result.data.count : tableData.length,
-                    })
-                })
-                .catch(e => {
-                    if (e && e.response && e.response.data) {
-                        toastr.error('Erro', e.response.data)
-                    } else if (typeof e === 'string') {
-                        toastr.error('Erro', e)
+    getData() {
+        axios.get(`${baseApiUrl}/${this.props.model}s`)
+            .then(result => {
+                let tableData = []
+                if (result.data && Array.isArray(result.data)) {
+                    if (this.props.model === 'contact' || 'feedback') {
+                        tableData = result.data.map(entity => {
+                            const user = { ...entity.user }
+                            user.userId = user.id
+                            delete user.id
+                            delete entity.user
+                            return { ...entity, ...user }
+                        })
                     } else {
-                        toastr.error('Erro', 'Oops.. Erro inesperado.')
+                        tableData = result.data
                     }
-                    resolve({
-                        data: [],
-                        page: 0,
-                        totalCount: 0,
-                    })
-                })
-        })
+                }
+                beautifyData(tableData)
+                this.setState({ data: tableData })
+            })
+            .catch(e => {
+                if (e && e.response && e.response.data) {
+                    toastr.error('Erro', e.response.data)
+                } else if (typeof e === 'string') {
+                    toastr.error('Erro', e)
+                } else {
+                    toastr.error('Erro', 'Oops.. Erro inesperado.')
+                }
+                this.setState({ data: [] })
+            })
+    }
 
-    exportToCsv = columns => exportData(columns, this.tableRef.current.state.query, this.props.model + 's')
+    componentDidMount() {
+        this.getData()
+    }
 
     onAddClick = () => {
         this.props.functions.setModalVisibility(true, `Add ${this.props.model.substring(0, this.props.model.length)}`, 'create', this.props.model)
@@ -70,7 +64,7 @@ class TableView extends Component {
         this.props.functions.setModalVisibility(true, `Remove ${this.props.model.substring(0, this.props.model.length)} "${rowData[this.props.field]}"`, 'delete', this.props.model, rowData.id)
     }
 
-    onRefreshClick = () => this.tableRef.current.onQueryChange()
+    onRefreshClick = () => this.getData()
 
     render() {
         const actions = [
@@ -103,11 +97,14 @@ class TableView extends Component {
                 <Content>
                     <div>
                         <MaterialTable detailPanel={this.props.detailPanel} title="" columns={this.props.columns} icons={tableIcons}
-                            tableRef={this.tableRef}
-                            // data={this.props.data}
-                            data={this.getTableData}
+                            data={this.state.data}
                             actions={actions}
-                            options={{ ...options, exportCsv: this.exportToCsv }}
+                            options={{
+                                ...options, exportMenu: [{
+                                    label: 'Export CSV',
+                                    exportFunc: (cols, data) => ExportCsv(cols, data, fileName+'_'+this.props.model)
+                                }]
+                            }}
                             localization={my_localization}
                         />
                     </div >

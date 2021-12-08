@@ -15,11 +15,9 @@ import AddBox from '@mui/icons-material/AddBox'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Edit from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import { exportCsv } from '../common/export/export'
-import { baseApiUrl } from './systemConstans'
-import axios from 'axios'
 
 const fileName = 'E-Learning_Data'
+
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
   Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -49,36 +47,9 @@ const my_localization = {
 const options = {
   columnsButton: true,
   filtering: true,
-  exportButton: { csv: true, pdf: false },
   pageSizeOptions: [5, 10, 20, 50],
   maxBodyHeight: '700px',
   debounceInterval: 1000
-}
-
-const getUrl = (query, allData = false, model) => {
-  let url = `${baseApiUrl}/${model}?`
-  if (query.orderBy) url += 'sort=' + query.orderBy.field + ',' + query.orderDirection + '&'
-  if (allData) {
-    url += 'per_page=all'
-    url += '&page=' + 1
-  } else {
-    url += 'per_page=' + query.pageSize
-    url += '&page=' + (query.page + 1)
-  }
-  url += '&search=' + query.search
-  url += '&filters=' + query.filters.map(filter => {
-    if (filter.column.field.includes('Date')) filter.value = filter.value.replaceAll('/', '-')
-    return `${filter.column.field}:${filter.value}`
-  })
-  return url
-}
-
-const exportData = (columns, query, model) => {
-  const url = getUrl(query, true, model)
-  axios.get(url)
-    .then(result => {
-      exportCsv(columns, result.data.data, fileName)
-    })
 }
 
 const addIcon = () => <AddBox style={{ color: '#ca0096' }} />
@@ -91,5 +62,5 @@ const beautifyData = (data) => data.forEach((value, index, array) => {
 })
 
 export {
-  exportData, getUrl, addIcon, editIcon, deleteIcon, refreshIcon, my_localization, tableIcons, options, beautifyData
+  addIcon, editIcon, deleteIcon, refreshIcon, my_localization, tableIcons, options, beautifyData, fileName
 }
